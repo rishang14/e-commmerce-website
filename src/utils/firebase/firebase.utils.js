@@ -1,9 +1,10 @@
+
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
   signInWithRedirect,
   signInWithPopup,
-  GoogleAuthProvider,
+  GoogleAuthProvider, 
 } from "firebase/auth";
 import { 
     getFirestore, 
@@ -23,17 +24,24 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
   prompt: "select_account",
-});
+}); 
+// const facebookProvider= new FacebookAuthProvider(); 
+// facebookProvider.setCustomParameters({
+//   prompt:"select_account"
+// })
 
 export const auth = getAuth();
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
- 
+export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider); 
+export const signInWithGoogleRedirect=() => signInWithRedirect (auth,googleProvider); 
+  
+
 export const db=getFirestore();  
 
-export const createUserDocumnetFromAuth= async (userAuth) =>{
+export const createUserDocumnetFromAuth= async (userAuth,additionalInformation={}) =>{ 
+  if(!userAuth) return;
     const userDocRef= doc(db,"users",userAuth.uid);  
     console.log(userDocRef); 
     const userSnapshot=await  getDoc(userDocRef); 
@@ -48,7 +56,8 @@ if(!userSnapshot.exists()){
     await setDoc(userDocRef,{
       displayName, 
       email, 
-      createAt, 
+      createAt,  
+      ...additionalInformation,
      
     });
   } catch(err){ 
@@ -58,3 +67,11 @@ if(!userSnapshot.exists()){
 }  
 return userDocRef;
 };
+ 
+export const  createAuthUserWithEmailAndPassword=async (email,password) => {   
+  if(!email || !password)  return; 
+  return await createAuthUserWithEmailAndPassword(auth,email,password)
+} 
+export default firebaseApp; 
+
+hello
