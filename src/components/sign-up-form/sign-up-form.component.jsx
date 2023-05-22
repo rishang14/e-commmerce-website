@@ -1,142 +1,77 @@
-// import { useState } from "react";
-// // import { createAuthUserWithEmailAndPassword,createUserDocumnetFromAuth} from "../../utils/firebase/firebase.utils";  
-// import firebaseApp from "../../utils/firebase/firebase.utils";
-// import 'firebase/auth';
+import { useState } from 'react';
 
-// const defaultFormFeild = {
-//   displayName: "",
-//   email: "",
-//   password: "",
-//   confirmPassword: "",
-// };
- 
+// import FormInput from '../form-input/form-input.component';
+// import Button from '../button/button.component';
 
-// const SignUpForm = () => {
-//   const [formFeilds, setFormFeilds] = useState(defaultFormFeild);
-//   const { displayName, email, password, confirmPassword } = formFeilds;
-  
-//   const resetFormFields=()=>{
-//     setFormFeilds(defaultFormFeild);
-//   }
-//   const handleSubmit = () => {
-//     firebaseApp
-//       .auth()
-//       .signInWithEmailAndPassword(email, password)
-//       .then((userCredential) => {
-//         // Logged in successfully
-//         const user = userCredential.user;
-//         // await createUserDocumentFromAuth(user, displayName)
-//         resetFormFields();
-//       })
-//       .catch((error) => {
-//         // Handle login errors
-//         console.log(error.message);
-//       });
-//   };
-//   const handleChange = (event) => {
-//     const { name ,value} = event.target; 
-//      setFormFeilds({...formFeilds,[name]:value})
-//   };
-// console.log(formFeilds)
-//   return (
-//     <div>
-//       <h1>Sign up with your eamil and password</h1>
-//       <form onSubmit={handleSubmit}>
-//         <label>Display Name</label>
-//         <input
-//           type="text"
-//           required
-//           onChange={handleChange}
-//           name="displayName"
-//           value={displayName}
-//         />
-//         <label>Email</label>
-//         <input
-//           type="email"
-//           required
-//           onChange={handleChange}
-//           name="email"
-//           value={email}
-//         />
-//         <label>Password</label>
-//         <input
-//           type="password"
-//           required
-//           onChange={handleChange}
-//           name="password"
-//           value={password}
-//         />
-//         <label>Confirm Password</label>
-//         <input
-//           type="password"
-//           required
-//           onChange={handleChange}
-//           name="confirmPassword"
-//           value={confirmPassword}
-//         />
-//         <button type="submit">Sign Up</button>
-//       </form>
-//     </div>
-//   );
-//   }; 
+import {
+  createAuthUserWithEmailAndPassword,
+  createUserDocumentFromAuth,
+} from '../../utils/firebase/firebase.utils';
 
-// export default SignUpForm;
-import React, { useState } from 'react';
-import firebaseApp from '../../utils/firebase/firebase.utils';
+// import './sign-up-form.styles.scss';
+
+const defaultFormFields = {
+  displayName: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+};
 
 const SignUpForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formFields, setFormFields] = useState(defaultFormFields);
+  const { displayName, email, password, confirmPassword } = formFields;
 
-  const handleEmailLogin = () => {
-    firebaseApp
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Logged in successfully
-        const user = userCredential.user;
-        console.log(user);
-      })
-      .catch((error) => {
-        // Handle login errors
-        console.log(error.message);
-      });
+  const resetFormFields = () => {
+    setFormFields(defaultFormFields);
   };
 
-  const handleGoogleLogin = () => {
-    const provider = new firebaseApp.auth.GoogleAuthProvider();
-    firebaseApp
-      .auth()
-      .signInWithPopup(provider)
-      .then((result) => {
-        // Logged in successfully
-        const user = result.user;
-        console.log(user);
-      })
-      .catch((error) => {
-        // Handle login errors
-        console.log(error.message);
-      });
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert('passwords do not match');
+      return;
+    }
+
+    try {
+      const { user } = await createAuthUserWithEmailAndPassword(
+        email,
+        password
+      );
+
+      await createUserDocumentFromAuth(user, { displayName });
+      resetFormFields();
+    } catch (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        alert('Cannot create user, email already in use');
+      } else {
+        console.log('user creation encountered an error', error);
+      }
+    }
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormFields({ ...formFields, [name]: value });
   };
 
   return (
     <div>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleEmailLogin}>Login with Email</button>
-      <button onClick={handleGoogleLogin}>Login with Google</button>
-    </div>
-  );
+        <h1>Sign up with your email  and password</h1>
+  <form onSubmit={handleSubmit}>
+      <label htmlFor="displayName">Dispaly Name</label>
+      <input type="text" required value={displayName} onChange={handleChange} name='displayName'/>
+      <label htmlFor="email">Email</label>
+      <input type="email" required value={email} onChange={handleChange}  name='email'/>
+      <label htmlFor="password">Password</label>
+      <input type="password" required value={password} onChange={handleChange}  name='password'/>
+      <label htmlFor="password">Confirm Password</label>
+      <input type="password" required value={confirmPassword} onChange={handleChange}  name='confirmPassword'/>
+      <button type='submit'>Sign Up</button>
+  </form>
+  </div>
+);
 };
 
 export default SignUpForm;
