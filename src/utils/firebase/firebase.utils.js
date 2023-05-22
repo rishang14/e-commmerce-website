@@ -5,17 +5,20 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 const firebaseConfig = { 
   apiKey: "AIzaSyCXVfDI6xYBtkm65WX7xHpmkCbF6Ex6xew",
-  authDomain: "e-commmerce-43a25.firebaseapp.com",
-  projectId: "e-commmerce-43a25",
-  storageBucket: "e-commmerce-43a25.appspot.com",
-  messagingSenderId: "922881711567",
-  appId: "1:922881711567:web:d0a75b579759dac43646ba"
-}
+authDomain: "e-commmerce-43a25.firebaseapp.com",
+projectId: "e-commmerce-43a25",
+storageBucket: "e-commmerce-43a25.appspot.com",
+messagingSenderId: "922881711567",
+appId: "1:922881711567:web:d0a75b579759dac43646ba" 
+ 
+};
+
 const firebaseApp = initializeApp(firebaseConfig);
 
 const googleProvider = new GoogleAuthProvider();
@@ -65,4 +68,10 @@ export const createAuthUserWithEmailAndPassword = async (email, password) => {
   if (!email || !password) return;
 
   return await createUserWithEmailAndPassword(auth, email, password);
+};
+
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+
+  return await signInWithEmailAndPassword(auth, email, password);
 };
